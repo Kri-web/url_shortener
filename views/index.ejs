@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+  </head>
+  <body>
+    <h1>URL Shortener</h1>
+
+    <div id="errorOutput"></div>
+
+    <form id="shortenUrlForm">
+      <input type="text" id="originalUrlInput" placeholder="Enter URL" required>
+      <button type="submit">Shorten</button>
+    </form>
+
+    <div id="shortUrlOutput"></div>
+
+    <script>
+      const shortenUrlForm = document.getElementById('shortenUrlForm');
+      const originalUrlInput = document.getElementById('originalUrlInput');
+      const shortUrlOutput = document.getElementById('shortUrlOutput');
+      const errorOutput = document.getElementById('errorOutput');
+
+      shortenUrlForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const originalUrl = originalUrlInput.value;
+
+        try {
+          const response = await fetch('/shorten', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ originalUrl }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Short URL created successfully
+            shortUrlOutput.innerHTML = `<p>Short URL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></p>`;
+            errorOutput.textContent = '';
+          } else {
+            // Error occurred while creating short URL
+            shortUrlOutput.textContent = '';
+            errorOutput.textContent = data.error;
+          }
+        } catch (error) {
+          console.error('Error occurred:', error);
+
+          // Display generic error message
+          shortUrlOutput.textContent = '';
+          errorOutput.textContent = 'An error occurred';
+        }
+      });
+    </script>
+  </body>
+</html>
